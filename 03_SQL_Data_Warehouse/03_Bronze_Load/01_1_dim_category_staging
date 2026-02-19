@@ -1,1 +1,36 @@
+/*
+Bronze STAGE: dim_category_stage
+Purpose: Landing table that mirrors the CSV structure for BULK INSERT.
+*/
+
+USE [PalthanioRestaurants];
+GO
+
+DROP TABLE IF EXISTS bronze.dim_category_stage;
+GO
+
+CREATE TABLE bronze.dim_category_stage (
+    CategoryKey   VARCHAR(20)  NULL,
+    CategoryName  VARCHAR(255) NULL,
+    Department    VARCHAR(100) NULL
+);
+GO
+
+/*
+BULK INSERT TEMPLATE (uncomment and update path locally)
+
+Tip:
+- If your CSV uses Windows line endings, change ROWTERMINATOR to '0x0D0A'
+- If you get encoding issues, keep CODEPAGE = '65001'
+
+BULK INSERT bronze.dim_category_stage
+FROM 'C:\YourPath\dim_category.csv'
+WITH (
+    FIRSTROW = 2,
+    FIELDTERMINATOR = ',',
+    ROWTERMINATOR = '0x0A',
+    TABLOCK,
+    CODEPAGE = '65001'
+);
+*/
 
