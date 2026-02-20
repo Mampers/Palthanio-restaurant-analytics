@@ -1,1 +1,117 @@
+/* ============================================================
+   SILVER -> GOLD : fact_orders
+   Source : silver.fact_orders_2025
+   Target : gold.fact_orders
+
+   Grain:
+   - 1 row per OrderID
+
+   Notes:
+   - ChannelCode must match gold.05_dim_channel.ChannelCode
+   - DateKey must match gold.01_dim_date.DateKey
+   - StoreKey must match gold.02_dim_store.StoreKey
+   ============================================================ */
+
+SET NOCOUNT ON;
+
+------------------------------------------------------------
+-- 0) Ensure schema exists
+------------------------------------------------------------
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'gold')
+    EXEC('CREATE SCHEMA gold;');
+GO
+
+------------------------------------------------------------
+-- 1) Drop + recreate (safe for reruns)
+------------------------------------------------------------
+IF OBJECT_ID('gold.fact_orders','U') IS NOT NULL
+    DROP TABLE gold.fact_orders;
+GO
+
+CREATE TABLE gold.fact_orders
+(
+    OrderID            nvarchar(50) NOT NULL,
+    DateKey            int          NOT NULL,
+    StoreKey           nvarchar(50) NOT NULL,
+    ChannelCode        nvarchar(100) NOT NULL,
+
+    OrderRevenueNet    decimal(18,2) NOT NULL,
+    DiscountAmount     decimal(18,2) NOT NULL,
+    NetAfterDiscount   decimal(18,2) NOT NULL,
+
+    LoadDts            datetime2(0)  NOT NULL,
+
+    CONSTRAINT PK_gold_fact_orders PRIMARY KEY CLUSTERED (OrderID)
+);
+GO
+
+------------------------------------------------------------
+-- 2) Insert from Silver
+------------------------------------------------------------
+INSERT INTO gold.fact_orders
+(
+    OrderID,
+    DateKey,
+    StoreKey,
+    ChannelCode,
+    OrderRevenueNet,
+    DiscountAmount,
+    NetAfterDiscount,
+    LoadDts
+)
+SELECT
+    s.OrderID,
+    TRY_CONVERT(int, s.DateKey) AS DateKey,
+    LTRIM(RTRIM(s.StoreKey)) AS StoreKey,
+
+    -- Standardise ChannelCode to match dim
+    UPPER(LTRIM(RTRIM(s.ChannelKey))) AS ChannelCode,
+
+    TRY_CONVERT(decimal(18,2), s.OrderRevenueNet) AS OrderRevenueNet,
+    TRY_CONVERT(decimal(18,2), s.DiscountAmount)  AS DiscountAmount,
+
+    TRY_CONVERT(decimal(18,2),
+        TRY_CONVERT(decimal(18,2), s.OrderRevenueNet)
+        - ISNULL(TRY_CONVERT(decimal(18,2), s.DiscountAmount),0)
+    ) AS NetAfterDiscount,
+
+    ISNULL(s.LoadDts, SYSDATETIME()) AS LoadDts
+
+FROM silver.fact_orders_2025 s
+WHERE s.OrderID IS NOT NULL;
+GO
+
+------------------------------------------------------------
+-- 3) Foreign Keys (after data load)
+------------------------------------------------------------
+ALTER TABLE gold.fact_orders
+ADD CONSTRAINT FK_gold_fact_orders_channel
+FOREIGN KEY (ChannelCode)
+REFERENCES gold.05_dim_channel(ChannelCode);
+GO
+
+ALTER TABLE gold.fact_orders
+ADD CONSTRAINT FK_gold_fact_orders_date
+FOREIGN KEY (DateKey)
+REFERENCES gold.01_dim_date(DateKey);
+GO
+
+ALTER TABLE gold.fact_orders
+ADD CONSTRAINT FK_gold_fact_orders_store
+FOREIGN KEY (StoreKey)
+REFERENCES gold.02_dim_store(StoreKey);
+GO
+
+------------------------------------------------------------
+-- 4) Helpful Indexes
+------------------------------------------------------------
+CREATE INDEX IX_gold_fact_orders_DateStore
+ON gold.fact_orders(DateKey, StoreKey);
+
+CREATE INDEX IX_gold_fact_orders_Channel
+ON gold.fact_orders(ChannelCode);
+GO
+
+-- Optional sanity check
+-- SELECT TOP (50) * FROM gold.fact_orders ORDER BY DateKey DESC;
 
