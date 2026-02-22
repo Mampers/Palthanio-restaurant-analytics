@@ -2,6 +2,10 @@
 
 ---
 
+# Security & Governance – Palthanio Restaurant Analytics
+
+---
+
 # 1. Security Model Overview
 
 The Palthanio Restaurant Analytics solution is designed with enterprise-grade governance and access control principles in mind.
