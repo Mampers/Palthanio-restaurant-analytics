@@ -1,78 +1,140 @@
-# Palthanio-restaurant-analytics
-End-to-end restaurant analytics solution using SQL Server data warehouse (Bronze/Silver/Gold architecture) and Power BI dashboards for financial, operational and KPI reporting.
+# Palthanio Restaurant Analytics
 
-## Overview
+An end-to-end enterprise Business Intelligence solution demonstrating dimensional modelling, data warehousing architecture, KPI governance, and semantic model design using SQL Server and Power BI.
 
-Palthanio Restaurant Analytics is a structured Business Intelligence solution built to support financial and operational decision-making across a multi-site restaurant environment.
+---
 
-The project demonstrates how raw operational data can be transformed into a governed, scalable reporting platform using SQL Server and Power BI.
+## Executive Summary
 
-## Business Goals
+Palthanio Restaurant Analytics is a production-style BI solution built to support financial and operational decision-making across a multi-site restaurant environment.
 
-Monitor revenue, gross profit and profit after labour
-Track labour cost % and waste impact
-Analyse store-level performance
-Improve financial transparency across locations
-Replace manual Excel reporting with automated dashboards
+The project demonstrates how raw operational data can be transformed into a governed, scalable analytics platform using a Bronze → Silver → Gold data warehouse architecture and a structured Power BI semantic model.
 
-## Architecture
+The focus of this solution is not only dashboard design, but enterprise modelling principles including:
 
-The solution follows a Bronze → Silver → Gold data warehouse design:
+- Explicit fact table grain definition
+- Conformed dimensions
+- Surrogate key strategy
+- Layered DAX architecture
+- Governance and reconciliation controls
+- Performance-aware semantic modelling
 
-Bronze: Raw data ingestion
-Silver: Cleansed and validated data
-Gold: Star schema model optimised for reporting
+---
 
-## Gold Layer Model
+## Business Objectives
 
-### Fact Tables
+- Monitor Revenue, Gross Profit and Profit After Labour
+- Track Labour Cost % and Waste Impact
+- Analyse Store-Level Performance
+- Evaluate Promotion Effectiveness
+- Replace manual Excel reporting with governed dashboards
+- Provide a single version of truth for KPI reporting
 
-fact_orders
-fact_store_daily_pnl
-fact_labour_daily
-fact_waste_daily
+---
 
-### Dimension Tables
+## Architecture Overview
 
-dim_store
-dim_date
-dim_product
-dim_employee
+### Data Warehouse (SQL Server)
 
-## Power BI Solution
+The solution follows a medallion architecture:
 
-The Power BI dashboard includes:
 
-Executive KPI Overview
-Revenue & Gross Profit Analysis
-Labour & Waste Cost Tracking
-Store Performance Comparisons
-Dynamic filtering for daily and product-level insights
+CSV Source Data
+→ Bronze (Raw ingestion)
+→ Silver (Cleansed & validated)
+→ Gold (Dimensional star schema)
+→ Power BI Semantic Model
 
-Key DAX measures include:
 
-Profit After Labour
-Labour Cost %
-Waste Cost %
-Time Intelligence (MoM / YoY)
+### Gold Layer Model
 
-## Tech Stack
+The Gold layer implements a constellation schema with multiple fact tables and shared conformed dimensions.
 
-SQL Server (T-SQL)
-Data Warehouse Architecture
-Star Schema Modelling
-Power BI
-DAX
-Power Query
+**Fact Tables**
+- fact_sales
+- fact_labour_costs
+- fact_inventory_waste
+- fact_promo_performance
 
-Repository Structure
-/sql
-/powerbi
-/docs
+**Conformed Dimensions**
+- dim_date
+- dim_store
+- dim_product
+- dim_promotion
+- dim_category
+
+Each fact table has explicitly defined grain to prevent double counting and ensure additive behaviour.
+
+---
+
+## Power BI Semantic Model
+
+The Power BI layer is designed using a structured DAX strategy:
+
+- Base Measures (aggregations)
+- Derived Measures (financial logic)
+- KPI Measures (business definitions)
+- Presentation Measures (visual logic)
+
+Model design principles:
+
+- Single-direction relationships
+- No fact-to-fact joins
+- No business transformations in Power BI
+- Performance-aware DAX implementation
+
+---
+
+## Governance & Quality Controls
+
+- Surrogate keys enforce referential integrity
+- Explicit Slowly Changing Dimension strategy
+- QA reconciliation checks between layers
+- No duplicated KPI logic
+- Centralised semantic model approach
+
+---
+
+## Key KPIs Delivered
+
+- Total Revenue
+- Gross Profit
+- Profit After Labour
+- Labour Cost %
+- Waste Cost %
+- Promotion ROI
+- Time Intelligence (MoM / YoY)
+
+---
+
+## Technology Stack
+
+- SQL Server (T-SQL)
+- Dimensional Modelling (Kimball methodology)
+- Bronze / Silver / Gold architecture
+- Power BI
+- DAX
+- Power Query
+
+---
+
+## Repository Structure
+
+
+01_Project_Overview
+02_Data_Architecture
+03_SQL_Data_Warehouse
+04_Power_BI_Modelling
 /images
 
-Author
 
-Paul Mampilly
+---
 
-PL-300 Certified Power BI Developer
+## Author
+
+**Paul Mampilly**  
+PL-300 Certified Power BI Developer  
+Enterprise Data Modelling | Analytics Engineering | Power BI
+
+---
+🎯 Why This Version
